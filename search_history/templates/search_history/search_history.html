@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search History - Singles Events Finder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'search_events' %}">Singles Events Finder</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'search_events' %}">Search Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'search_history' %}">Search History</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_settings' %}">Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Your Search History</h1>
+
+        {% if searches %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Location</th>
+                            <th>Date Range</th>
+                            <th>Searched At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for search in searches %}
+                        <tr>
+                            <td>
+                                <strong>{{ search.city }}, {{ search.state }}</strong><br>
+                                <small class="text-muted">{{ search.country }}</small>
+                            </td>
+                            <td>
+                                {{ search.start_date|date:"M d, Y" }} - {{ search.end_date|date:"M d, Y" }}
+                            </td>
+                            <td>
+                                {{ search.searched_at|date:"M d, Y" }}<br>
+                                <small class="text-muted">{{ search.searched_at|time:"g:i A" }}</small>
+                            </td>
+                            <td>
+                                <form method="POST" action="{% url 'search_events' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="city" value="{{ search.city }}">
+                                    <input type="hidden" name="state" value="{{ search.state }}">
+                                    <input type="hidden" name="country" value="{{ search.country }}">
+                                    <input type="hidden" name="start_date" value="{{ search.start_date|date:'Y-m-d' }}">
+                                    <input type="hidden" name="end_date" value="{{ search.end_date|date:'Y-m-d' }}">
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-arrow-repeat"></i> Search Again
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h5>No search history yet</h5>
+                <p>You haven't searched for any events yet. <a href="{% url 'search_events' %}" class="alert-link">Start your first search!</a></p>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
